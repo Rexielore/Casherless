@@ -1,0 +1,482 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MobileNet</title>
+    <link rel="stylesheet" href="cocossdwebcam.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js" integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <style>
+        body {
+            background: linear-gradient(500deg, #24334b, #466a5d)
+        }
+        
+        .texts {
+            font-size: 30px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        #bought {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        #bought td,
+        #bought th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        
+        #bought tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        #bought tr:hover {
+            background-color: #ddd;
+        }
+        
+        #bought th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+        
+        .cam {
+            width: 65%;
+        }
+        
+        .webcamera {
+            float: left;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .qrcamera {
+            float: left;
+            width: 100%;
+        }
+        
+        .buttons {
+            width: 30%;
+            height: 100%;
+            background-color: #FAFCFB;
+            position: relative;
+            float: right;
+        }
+        
+        .camView {
+            float: right;
+            width: 70%;
+            margin: 10px;
+            cursor: pointer;
+        }
+        
+        .camView p {
+            position: absolute;
+            padding: 5px;
+            background-color: rgba(24, 170, 223, 0.85);
+            color: #fff;
+            border: 1px rgba(25, 82, 207, 0.627);
+            z-index: 2;
+            font-size: 12px;
+        }
+        
+        .highlighter {
+            background: rgba(174, 199, 174, 0.205);
+            border: 1px dashed #fff;
+            z-index: 1;
+            position: absolute;
+        }
+        
+        #webcamButton {
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+            border: 0;
+        }
+        
+        #stopButton {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+            border: 0;
+        }
+        
+        #btnDetect {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+            border: 0;
+        }
+        
+        #btnStopDetection {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+            border: 0;
+        }
+        
+        .pay {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+            border: 0;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(500deg, #24334b, #466a5d);
+            height: 100vh;
+        }
+        
+        .box {
+            text-align: center;
+        }
+        
+        .button {
+            font-weight: bold;
+            width: 40%;
+            border: 0;
+            padding: 10px;
+            color: #000000;
+            text-decoration: none;
+            transition: all 0.3s ease-out;
+            background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: Linear-gradient(500deg, #1b212b, #384b44);
+            transition: opacity 500ms;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .overlay:target {
+            visibility: visible;
+            opacity: 1;
+            transition: all 0.3s ease-out;
+        }
+        
+        .wrapper {
+            margin: 70px auto;
+            padding: 20px;
+            background: #e7e7e7;
+            border-radius: 5px;
+            width: 30%;
+            position: relative;
+            transition: all 2s ease-in-out;
+        }
+        
+        .wrapper h2 {
+            margin-top: 0;
+            color: #ffffff;
+        }
+        
+        .wrapper .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            transition: all 200ms;
+            font-size: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #0a0a0a;
+        }
+        
+        .wrapper .content {
+            overflow: auto;
+        }
+        
+        .container {
+            border-radius: 5px;
+            background-color: #e7e7e7;
+            padding: 20px 0;
+            height: 60%;
+        }
+        
+        form label {
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 3px;
+        }
+        
+        input[type=text],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+        
+        input[type="submit"] {
+            background-color: #413b3b;
+            color: #fff;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+    </style>
+    <script>
+        var isLoaded = false;
+        var model;
+        var children = [];
+        var animationFrameReference;
+        var webcamDiv;
+        var total = 0;
+        var amounts = 0;
+        document.addEventListener("DOMContentLoaded", () => {
+            const payButton = document.getElementById("payButton");
+            const btnWebcam = document.getElementById("webcamButton");
+            const webcam = document.getElementById("webcam");
+            var mediaDevices = navigator.mediaDevices;
+            const btnStop = document.getElementById("stopButton");
+            const btnDetect = document.getElementById("btnDetect");
+            webcamDiv = document.getElementById("webcamDiv");
+            const btnStopDetection = document.getElementById("btnStopDetection");
+            const btnPayDetection = document.getElementById("btnPayDetection");
+            const paynow = document.getElementById("paynow");
+
+
+
+
+            function onScanSuccess(qrCodeMessage) {
+                if (qrCodeMessage != null) {
+                    console.log(qrCodeMessage);
+                    const users = qrCodeMessage.split('-');
+                    console.log("naka scan");
+                    window.location.href = "#divOnes";
+                    document.getElementById("names").innerHTML = "AI Store";
+                    document.getElementById("moneys").innerHTML = "Balance:" + users[3];
+                    const amount = document.getElementById("amount").textContent;
+                    const mySubstring = amount.substring(21, 22);
+                    // console.log(mySubstring);
+                    // console.log(amount);
+                    // if (users[3] >= parseFloat(mySubstring)) {
+                    //     alert("Thankyou and please come back");
+                    // } else {
+                    //     alert("Not Enough Balance");
+                    // }
+                    // document.getElementById("amount").innerHTML = "Total Amount to Pay: " + total;
+                    // console.log(parseFloat(users[3]));
+
+                    // document.getElementById("divOnes").style.display = "block"; // console.log(users[1]); // btnPayDetection(users[1]); // var maindiv = `Name: ` + users[1] + `<br>`;
+                    // divs.innerHTML = maindiv; // const divs = document.getElementById("webcamDiv"); // document.getElementById("result").innerHTML = qrCodeMessage; // html5QrcodeScanner.clear(); html5QrCodeScanner.stop(); }
+                }
+                html5QrCodeScanner.stop();
+            }
+            paynow.addEventListener("click", () => {
+                const moneyss = document.getElementById("moneys").textContent;
+                const amount = document.getElementById("amount").textContent;
+                const tamount = amount.substring(21, 22);
+                const tmoney = moneyss.substring(8, 10);
+                console.log(tamount);
+                console.log(tmoney);
+                if (tmoney >= tamount) {
+                    alert("Thankyou and please come back");
+                    window.location.href = "http://localhost/ai/try.html";
+                } else {
+                    alert("Not Enough Balance");
+                }
+            });
+
+
+            function onScanError(errorMessage) {
+                // Handle Scan Error
+            }
+
+
+
+            // in
+            var html5QrCodeScanner;
+            onload = () => {
+                html5QrCodeScanner = new Html5QrcodeScanner("webcamDiv", {
+                    fps: 10,
+                    qrbox: 250,
+
+                });
+                html5QrCodeScanner.render(onScanSuccess, onScanError);
+            }
+            btnWebcam.addEventListener("click", () => {
+
+                mediaDevices
+                    .getUserMedia({
+                        video: true,
+                        Audio: false,
+                    })
+                    .then((stream) => {
+                        webcam.srcObject = stream;
+                        webcam.addEventListener("loadedmetadata", () => {
+                            webcam.play();
+                        });
+                    })
+                    .catch((error) => {
+                        alert(error);
+                    });
+            });
+
+            btnStop.addEventListener("click", () => {
+                const webcam = document.getElementById("webcam");
+                const mediaStream = webcam.srcObject;
+                const tracks = mediaStream.getTracks();
+                tracks[0].stop();
+            });
+
+            btnDetect.addEventListener("click", () => {
+                detectWebcam();
+            });
+
+            btnStopDetection.addEventListener("click", () => {
+                removeChildren();
+                cancelAnimationFrame(animationFrameReference);
+            });
+        });
+
+        const detectWebcam = async() => {
+            if (!isLoaded) {
+                console.log("Loading...");
+                model = await cocoSsd.load();
+                isLoaded = true;
+            }
+            removeChildren();
+
+            const items = ["mouse", "cell phone", "tv", "keyboard"];
+            const buy = [];
+            const price = [1, 2, 3, 4];
+            const elementCnt = {};
+            var predictions = await model.detect(webcam);
+            var myHtml = `
+      
+     <table style=" width: 100%;" class='table table-striped'>
+     <thead class='thead-dark'>
+          <tr>
+          <th style="text-align: center">Product Name</th>
+          <th style="text-align: center">Price</th>          
+          </tr>
+        </thead>
+        </center>
+      `;
+            predictions.forEach((prediction) => {
+                //label
+                console.log(predictions);
+                // console.log(prediction.class);
+                buy.push(prediction.class);
+                console.log(buy[0]);
+
+            });
+            for (var i = 0; i < items.length; i++) {
+                for (var ii = 0; ii < buy.length; ii++) {
+                    if (buy[ii] == items[i]) {
+                        // console.log(price[i]);
+                        total += price[i];
+                        myHtml += `
+          <tr >
+            <td  style="padding-left: 5px; padding-right: 5px;">${buy[ii]}</td>
+            <td style="padding-left: 5px; padding-right: 5px;">${price[i]}</td>              
+          </tr>
+        `;
+                        break;
+                    }
+                }
+            }
+            const bought = document.getElementById("bought");
+            bought.innerHTML = myHtml;
+            document.getElementById("amount").innerHTML = "Total Amount to Pay: " + total;
+            console.log(total);
+            // animationFrameReference = window.requestAnimationFrame(detectWebcam);
+        };
+
+        const removeChildren = () => {
+            children.forEach((element) => {
+                webcamDiv.removeChild(element);
+            });
+            children.splice(0);
+        };
+    </script>
+</head>
+
+<body>
+    <div class="cam">
+        <video id="webcam" width="100%" height="100%" style="float:left" autoplay></video>
+    </div>
+
+    <center>
+        <div class="buttons">
+            <button id="webcamButton">OPEN WEBCAM</button><br /><br />
+            <button id="stopButton">STOP WEBCAM</button><br /><br />
+            <button id="btnDetect">SCAN ITEMS</button><br /><br />
+            <button id="btnStopDetection">STOP SCANNING</button><br /><br /><br />
+            <a class="button" href="#divOne">SCAN QR CODE</a><br /><br /><br /><br /><br /><br /><br /><br /><br />
+            <di id="bought">
+        </div>
+
+
+
+        <div class="overlay" id="divOne">
+            <div class="wrapper">
+                <a class="close" href="#">&times;</a>
+                <div class="content">
+                    <div class="container">
+                        <div id="name"></div>
+                        <div id="money"></div>
+                        <div id="webcamDiv" class="qrcamera"></div>
+                        <button id="btnPayDetection" class="pay">SCAN</button><br /><br />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="overlay" id="divOnes">
+            <div class="wrapper">
+                <a class="close" href="#">&times;</a>
+                <div class="content">
+                    <div class="container">
+                        <p id="names" class="texts"></p>
+                        <p id="moneys" class="texts"></p>
+                        <p id="amount" class="texts"></p>
+                        <button id="paynow" class="pay">Pay Now</button><br /><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        </div>
+    </center>
+
+</body>
+
+</html>

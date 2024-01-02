@@ -1,0 +1,33 @@
+Code for bootstrap Modal
+
+//MODAL DEFINITION
+
+  <!-- BLANK MODAL -->
+  <div class="modal fade" id="blankModal" role="modal">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header text-white" style="background-color:#006400">
+          <h5 class="modal-title" id="blankModalTitle">MODAL TITLE HERE</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <div id="password-modal-error" class="row"></div>
+          <div class="row" id="blankMainDiv">You can add as many divs as you want</div>
+          <div class="row" id="blankMainDiv2">depends on the content/design</div>
+        </div>
+        <div class="modal-footer" id="blank-modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+//FILL THE MODAL HERE
+// THE INPUT ELEMENTS, BUTTONS ETC.
+
+//OPEN THE MODAL DEFINED ABOVE
+const myModal = new bootstrap.Modal(document.getElementById('blankModal'), {
+    keyboard: true,
+    backdrop: "static"
+  })
+myModal.show();

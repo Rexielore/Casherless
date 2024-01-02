@@ -1,0 +1,69 @@
+<html>
+<div class="row">
+    <div class="col">
+        <div id="reader"></div>
+    </div>
+    <div class="col" style="padding: 30px">
+        <h4>Scan Result </h4>
+        <div id="result">
+            Result goes here
+        </div>
+    </div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js" integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    // When scan is successful fucntion will produce data
+    function onScanSuccess(qrCodeMessage) {
+
+        document.getElementById("result").innerHTML =
+            '<p class="result">' + qrCodeMessage + "</p>";
+        sakto();
+        html5QrcodeScanner.clear();
+
+
+
+
+    }
+
+    function sakto() {
+        const results = document.getElementById("result").innerHTML;
+
+        console.log(results);
+
+    }
+    // When scan is unsuccessful fucntion will produce error message
+    function onScanError(errorMessage) {
+        // Handle Scan Error
+    }
+
+    // Setting up Qr Scanner properties
+    var html5QrCodeScanner = new Html5QrcodeScanner("reader", {
+        fps: 10,
+        qrbox: 250,
+
+    });
+
+    // in
+    html5QrCodeScanner.render(onScanSuccess, onScanError);
+</script>
+<style>
+    h1 {
+        text-align: center;
+    }
+    
+    #reader {
+        width: 500px;
+    }
+    
+    .row {
+        display: flex;
+    }
+    
+    #reader__scan_region {
+        background: white;
+    }
+</style>
+
+
+</html>

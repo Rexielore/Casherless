@@ -1,0 +1,166 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MobileNet</title>
+    <link rel="stylesheet" href="cocossdwebcam.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js" integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <script>
+        var isLoaded = false;
+        var model;
+        var children = [];
+        var animationFrameReference;
+        var webcamDiv;
+        var total = 0;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const payButton = document.getElementById("payButton");
+            const btnWebcam = document.getElementById("webcamButton");
+            const webcam = document.getElementById("webcam");
+            var mediaDevices = navigator.mediaDevices;
+            const btnStop = document.getElementById("stopButton");
+            const btnDetect = document.getElementById("btnDetect");
+            webcamDiv = document.getElementById("webcamDiv");
+            const btnStopDetection = document.getElementById("btnStopDetection");
+            const btnPayDetection = document.getElementById("btnPayDetection");
+
+            payButton.addEventListener("click", () => {
+
+                const user = document.getElementById("result").innerHTML;
+                const users = user.split('-');
+                const totals = document.getElementById("total").innerHTML;
+                document.getElementById("payed").innerHTML = users[3] - totals;
+
+                console.log(users[3] - totals);
+            });
+
+
+            function onScanSuccess(qrCodeMessage) {
+                document.getElementById("result").innerHTML = qrCodeMessage;
+
+                html5QrcodeScanner.clear();
+            }
+
+            function onScanError(errorMessage) {
+                // Handle Scan Error
+            }
+
+
+
+            // in
+            var html5QrCodeScanner;
+            btnPayDetection.addEventListener("click", () => {
+                html5QrCodeScanner = new Html5QrcodeScanner("webcamDiv", {
+                    fps: 10,
+                    qrbox: 250,
+
+                });
+                html5QrCodeScanner.render(onScanSuccess, onScanError);
+            });
+            btnWebcam.addEventListener("click", () => {
+
+                mediaDevices
+                    .getUserMedia({
+                        video: true,
+                        Audio: false,
+                    })
+                    .then((stream) => {
+                        webcam.srcObject = stream;
+                        webcam.addEventListener("loadedmetadata", () => {
+                            webcam.play();
+                        });
+                    })
+                    .catch((error) => {
+                        alert(error);
+                    });
+            });
+
+            btnStop.addEventListener("click", () => {
+                const webcam = document.getElementById("webcam");
+                const mediaStream = webcam.srcObject;
+                const tracks = mediaStream.getTracks();
+                tracks[0].stop();
+            });
+
+            btnDetect.addEventListener("click", () => {
+                detectWebcam();
+            });
+
+            btnStopDetection.addEventListener("click", () => {
+                removeChildren();
+                cancelAnimationFrame(animationFrameReference);
+            });
+        });
+
+        const detectWebcam = async() => {
+            if (!isLoaded) {
+                console.log("Loading...");
+                model = await cocoSsd.load();
+                isLoaded = true;
+            }
+            removeChildren();
+
+            const items = ["mouse", "cell phone", "tv", "keyboard"];
+            const buy = [];
+            const price = [1, 2, 3, 4];
+            const elementCnt = {};
+
+            var predictions = await model.detect(webcam);
+            predictions.forEach((prediction) => {
+                //label
+                console.log(predictions);
+                // console.log(prediction.class);
+                buy.push(prediction.class);
+                console.log(buy[0]);
+
+            });
+            for (var i = 0; i < items.length; i++) {
+                for (var ii = 0; ii < buy.length; ii++) {
+                    if (buy[ii] == items[i]) {
+                        // console.log(price[i]);
+                        total += price[i];
+                        break;
+                    }
+                }
+            }
+            document.getElementById("total").innerHTML = total;
+            console.log(total);
+            // animationFrameReference = window.requestAnimationFrame(detectWebcam);
+        };
+
+        const removeChildren = () => {
+            children.forEach((element) => {
+                webcamDiv.removeChild(element);
+            });
+            children.splice(0);
+        };
+    </script>
+</head>
+
+<body>
+    <div id="webcamDiv" class="camView">
+        <video id="webcam" width="600" height="440" autoplay></video>
+    </div>
+
+    <div>
+        <button id="webcamButton">Open Webcam</button><br /><br />
+        <button id="stopButton">Stop Webcam</button><br /><br />
+        <button id="btnDetect">Detect</button><br /><br />
+        <button id="btnStopDetection">Stop Detection</button><br /><br />
+        <button id="btnPayDetection" class="pay">SCAN</button><br /><br />
+        <button id="payButton" class="pay">PAY</button>
+        <p id="total"></p>
+        <p id="payed"></p>
+        <div class="col" style="padding: 30px">
+            <h4>Scan Result </h4>
+            <div id="result"></div>
+        </div>
+    </div>
+</body>
+
+</html>

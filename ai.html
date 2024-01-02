@@ -1,0 +1,478 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MobileNet</title>
+    <link rel="stylesheet" href="cocossdwebcam.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js" integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <style>
+        #message {
+            display: none;
+        }
+        
+        body {
+            background: linear-gradient(500deg, #24334b, #466a5d);
+        }
+        
+        .texts {
+            font-size: 30px;
+            font-family: "Courier New", Courier, monospace;
+        }
+        
+        #bought {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        #bought td,
+        #bought th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            color: white;
+        }
+        
+        #bought tr:nth-child(even) {
+            background-color: #f2f2f2;
+            color: white;
+        }
+        
+        #bought tr:hover {
+            background-color: #ddd;
+            color: white;
+        }
+        
+        #bought th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04aa6d;
+            color: white;
+        }
+        
+        .cam {
+            width: 65%;
+        }
+        
+        .webcamera {
+            float: left;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .qrcamera {
+            float: left;
+            width: 100%;
+        }
+        
+        .buttons {
+            width: 30%;
+            height: 100%;
+            background-color: transparent;
+            position: relative;
+            float: right;
+        }
+        
+        .camView {
+            float: right;
+            width: 70%;
+            margin: 10px;
+            cursor: pointer;
+        }
+        
+        .camView p {
+            position: absolute;
+            padding: 5px;
+            background-color: rgba(24, 170, 223, 0.85);
+            color: #fff;
+            border: 1px rgba(25, 82, 207, 0.627);
+            z-index: 2;
+            font-size: 12px;
+        }
+        
+        .highlighter {
+            background: rgba(174, 199, 174, 0.205);
+            border: 1px dashed #fff;
+            z-index: 1;
+            position: absolute;
+        }
+        
+        #webcamButton {
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5ac3c7, #58ad8e);
+            border: 0;
+        }
+        
+        #stopButton {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5ac3c7, #58ad8e);
+            border: 0;
+        }
+        
+        #btnDetect {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5ac3c7, #58ad8e);
+            border: 0;
+        }
+        
+        #btnStopDetection {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5ac3c7, #58ad8e);
+            border: 0;
+        }
+        
+        .pay {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            width: 40%;
+            background: linear-gradient(500deg, #5ac3c7, #58ad8e);
+            border: 0;
+        }
+        
+        body {
+            font-family: "Montserrat", sans-serif;
+            background: linear-gradient(500deg, #24334b, #466a5d);
+            height: 100vh;
+        }
+        
+        .box {
+            text-align: center;
+        }
+        
+        .button {
+            font-weight: bold;
+            width: 40%;
+            border: 0;
+            padding: 10px;
+            color: #000000;
+            text-decoration: none;
+            transition: all 0.3s ease-out;
+            background: linear-gradient(500deg, #5ac3c7, #58ad8e);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: transparent;
+            transition: opacity 500ms;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .overlay:target {
+            visibility: visible;
+            opacity: 1;
+            transition: all 0.3s ease-out;
+        }
+        
+        .wrapper {
+            margin: 70px auto;
+            padding: 20px;
+            background: #e7e7e7;
+            border-radius: 5px;
+            width: 30%;
+            position: relative;
+            transition: all 2s ease-in-out;
+        }
+        
+        .wrapper h2 {
+            margin-top: 0;
+            color: #ffffff;
+        }
+        
+        .wrapper .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            transition: all 200ms;
+            font-size: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #0a0a0a;
+        }
+        
+        .wrapper .content {
+            overflow: auto;
+        }
+        
+        .container {
+            border-radius: 5px;
+            background-color: #e7e7e7;
+            padding: 20px 0;
+            height: 60%;
+        }
+        
+        form label {
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 3px;
+        }
+        
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+        
+        input[type="submit"] {
+            background-color: #413b3b;
+            color: #fff;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+    </style>
+    <script>
+        var isLoaded = false;
+        var model;
+        var children = [];
+        var animationFrameReference;
+        var webcamDiv;
+        var total = 0;
+        var amounts = 0;
+        const talker = new SpeechSynthesisUtterance();
+        window.SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+        const maritess = new SpeechRecognition();
+        var endNow = false;
+        document.addEventListener("DOMContentLoaded", () => {
+            const payButton = document.getElementById("payButton");
+            const btnWebcam = document.getElementById("webcamButton");
+            const webcam = document.getElementById("webcam");
+            var mediaDevices = navigator.mediaDevices;
+            const btnStop = document.getElementById("stopButton");
+            const btnDetect = document.getElementById("btnDetect");
+            webcamDiv = document.getElementById("webcamDiv");
+            const btnStopDetection = document.getElementById("btnStopDetection");
+            const btnPayDetection = document.getElementById("btnPayDetection");
+            const paynow = document.getElementById("paynow");
+
+            function onScanSuccess(qrCodeMessage) {
+                if (qrCodeMessage != null) {
+                    console.log(qrCodeMessage);
+                    const users = qrCodeMessage.split("-");
+                    console.log("naka scan");
+                    window.location.href = "#divOnes";
+                    document.getElementById("names").innerHTML = "AI Store";
+                    document.getElementById("moneys").innerHTML = "Balance:" + users[3];
+                    const amount = document.getElementById("amount").textContent;
+                    const mySubstring = amount.substring(21, 22);
+                }
+                html5QrCodeScanner.stop();
+            }
+
+            function onScanError(errorMessage) {}
+
+            var html5QrCodeScanner;
+            onload = () => {
+                html5QrCodeScanner = new Html5QrcodeScanner("webcamDiv", {
+                    fps: 10,
+                    qrbox: 250,
+                });
+                html5QrCodeScanner.render(onScanSuccess, onScanError);
+                maritess.start();
+                endNow = false;
+                mediaDevices
+                    .getUserMedia({
+                        video: true,
+                        Audio: false,
+                    })
+                    .then((stream) => {
+                        webcam.srcObject = stream;
+                        webcam.addEventListener("loadedmetadata", () => {
+                            webcam.play();
+                        });
+                    })
+                    .catch((error) => {
+                        alert(error);
+                    });
+            };
+            maritess.addEventListener("end", () => {
+                if (!endNow) {
+                    maritess.start();
+                }
+            });
+        });
+        maritess.addEventListener("result", (e) => {
+            var msg = e.results[0][0].transcript;
+
+            if (msg == "scan") {
+                detectWebcam();
+            } else if (msg == "pay") {
+                viewqr();
+            } else if (msg == "submit") {
+                paynow();
+            } else {
+                console.log(msg);
+            }
+        });
+        const detectWebcam = async() => {
+            if (!isLoaded) {
+                console.log("Loading...");
+                model = await cocoSsd.load();
+                isLoaded = true;
+            }
+            removeChildren();
+
+            const items = ["mouse", "cell phone", "tv", "keyboard"];
+            const buy = [];
+            const price = [1, 2, 3, 4];
+            const elementCnt = {};
+            var predictions = await model.detect(webcam);
+            var myHtml = `
+      
+     <table style=" width: 100%;" class='table table-striped'>
+     <thead class='thead-dark'>
+          <tr>
+          <th style="text-align: center">Product Name</th>
+          <th style="text-align: center">Price</th>          
+          </tr>
+        </thead>
+        </center>
+      `;
+            predictions.forEach((prediction) => {
+                console.log(predictions);
+
+                buy.push(prediction.class);
+                console.log(buy[0]);
+            });
+            for (var i = 0; i < items.length; i++) {
+                for (var ii = 0; ii < buy.length; ii++) {
+                    if (buy[ii] == items[i]) {
+                        total += price[i];
+                        myHtml += `
+          <tr >
+            <td  style="padding-left: 5px; padding-right: 5px;">${buy[ii]}</td>
+            <td style="padding-left: 5px; padding-right: 5px;">${price[i]}</td>              
+          </tr>
+        `;
+                        break;
+                    }
+                }
+            }
+            myHtml += `
+          <tr >
+            <td  style="padding-left: 5px; padding-right: 5px;">Total: </td>
+            <td style="padding-left: 5px; padding-right: 5px;">${total}</td>              
+          </tr>
+        `;
+            const bought = document.getElementById("bought");
+            bought.innerHTML = myHtml;
+            document.getElementById("amount").innerHTML =
+                "Total Amount to Pay: " + total;
+            console.log(total);
+        };
+
+        const removeChildren = () => {
+            children.forEach((element) => {
+                webcamDiv.removeChild(element);
+            });
+            children.splice(0);
+        };
+        const viewqr = () => {
+            window.location.href = "#divOne";
+        };
+        const paynow = () => {
+            const moneyss = document.getElementById("moneys").textContent;
+            const amount = document.getElementById("amount").textContent;
+            const tamount = amount.substring(21, 22);
+            const tmoney = moneyss.substring(8, 10);
+            console.log(tamount);
+            console.log(tmoney);
+
+            if (tmoney >= tamount) {
+                const countdownDuration = 100;
+
+                // Start the countdown timer
+                const countdownTimeout = setTimeout(() => {
+                    // Redirect the user to a new web page
+                    const message = document.getElementById("message");
+                    talker.text = "Your total to pay is " + tamount + message.value;
+                    speechSynthesis.speak(talker);
+                    window.location.href = "http://localhost/aifinal/ai.html";
+                }, countdownDuration);
+
+                // Clear the countdown timer after 5 seconds
+                setTimeout(() => {
+                    clearTimeout(countdownTimeout);
+                }, countdownDuration + 5000);
+            } else {
+                alert("Not Enough Balance");
+            }
+        };
+    </script>
+</head>
+
+<body>
+    <div class="cam">
+        <video id="webcam" width="100%" height="100%" style="float: left" autoplay></video>
+        <textarea id="message" cols="30" rows="10">
+Thankyou and please come again!</textarea
+      >
+    </div>
+
+    <center>
+      <div class="buttons">
+        <div id="bought"><br /><br /><br /></div>
+        <div class="overlay" id="divOne">
+          <div class="wrapper">
+            <a class="close" href="#">&times;</a>
+            <div class="content">
+              <div class="container">
+                <div id="name"></div>
+                <div id="money"></div>
+                <div id="webcamDiv" class="qrcamera"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="overlay" id="divOnes">
+          <div class="wrapper">
+            <a class="close" href="#">&times;</a>
+            <div class="content">
+              <div class="container">
+                <p id="names" class="texts"></p>
+                <p id="moneys" class="texts"></p>
+                <p id="amount" class="texts"></p>
+                <button id="paynow" class="pay">Pay Now</button><br /><br />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </center>
+  </body>
+</html>

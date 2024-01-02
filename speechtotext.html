@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>voice recognition</title>
+</head>
+<script>
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const maritess = new SpeechRecognition();
+    var endNow = false;
+    const talk = () => {
+        maritess.start();
+        endNow = false;
+        document.getElementById("btnRStart").textContent = "Listening...";
+    }
+    const shutUp = () => {
+        endNow = true;
+        maritess.stop();
+        document.getElementById("btnRStart").textContent = "Talk";
+    }
+    maritess.addEventListener("result", (e) => {
+        // console.log(e.result);;
+        var msg = e.results[0][0].transcript;
+        document.getElementById("text").value = msg;
+    })
+    maritess.addEventListener("end", () => {
+        if (!endNow) {
+            maritess.start();
+        }
+
+    })
+</script>
+
+<body>
+    <textarea id="text" cols="30" rows="10"></textarea>
+    <button id="btnRStart" onclick="talk()">talk</button>
+    <button id="btnRStop" onclick="shutUp()">shut up!</button>
+</body>
+
+</html>

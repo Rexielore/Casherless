@@ -1,0 +1,203 @@
+body {
+    background: linear-gradient(500deg, #24334b, #466a5d)
+}
+
+.cam {
+    width: 65%;
+}
+
+.webcamera {
+    float: left;
+    width: 100%;
+    height: 100%;
+}
+
+.qrcamera {
+    float: left;
+    width: 100%;
+}
+
+.buttons {
+    width: 30%;
+    height: 100%;
+    background-color: #FAFCFB;
+    position: relative;
+    float: right;
+}
+
+.camView {
+    float: right;
+    width: 70%;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.camView p {
+    position: absolute;
+    padding: 5px;
+    background-color: rgba(24, 170, 223, 0.85);
+    color: #fff;
+    border: 1px rgba(25, 82, 207, 0.627);
+    z-index: 2;
+    font-size: 12px;
+}
+
+.highlighter {
+    background: rgba(174, 199, 174, 0.205);
+    border: 1px dashed #fff;
+    z-index: 1;
+    position: absolute;
+}
+
+#webcamButton {
+    font-weight: bold;
+    margin-top: 20px;
+    padding: 10px;
+    width: 40%;
+    background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+    border: 0;
+}
+
+#stopButton {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+    width: 40%;
+    background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+    border: 0;
+}
+
+#btnDetect {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+    width: 40%;
+    background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+    border: 0;
+}
+
+#btnStopDetection {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+    width: 40%;
+    background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+    border: 0;
+}
+
+.pay {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+    width: 40%;
+    background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+    border: 0;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(500deg, #24334b, #466a5d);
+    height: 100vh;
+}
+
+.box {
+    text-align: center;
+}
+
+.button {
+    font-weight: bold;
+    width: 40%;
+    border: 0;
+    padding: 10px;
+    color: #000000;
+    text-decoration: none;
+    transition: all 0.3s ease-out;
+    background: linear-gradient(500deg, #5AC3C7, #58AD8E);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: Linear-gradient(500deg, #1b212b, #384b44);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+.overlay:target {
+    visibility: visible;
+    opacity: 1;
+    transition: all 0.3s ease-out;
+}
+
+.wrapper {
+    margin: 70px auto;
+    padding: 20px;
+    background: #e7e7e7;
+    border-radius: 5px;
+    width: 30%;
+    position: relative;
+    transition: all 2s ease-in-out;
+}
+
+.wrapper h2 {
+    margin-top: 0;
+    color: #ffffff;
+}
+
+.wrapper .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transition: all 200ms;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #0a0a0a;
+}
+
+.wrapper .content {
+    overflow: auto;
+}
+
+.container {
+    border-radius: 5px;
+    background-color: #e7e7e7;
+    padding: 20px 0;
+    height: 60%;
+}
+
+form label {
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 3px;
+}
+
+input[type=text],
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type="submit"] {
+    background-color: #413b3b;
+    color: #fff;
+    padding: 15px 50px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
